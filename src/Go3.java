@@ -5,18 +5,20 @@ import java.util.Scanner;
 public class Go3 {
 
     //Initializes our empty go board
-    // static String[][] goBoard = new String[9][9];
-    static String[][] goBoard = {
-                                    {null,null,null,null,null,null,null,null,null},
-                                    {null,null,null,"-#",null,null,null,null,null},
-                                    {null,null,"-#","-@","-#",null,null,null,null},
-                                    {null,null,"-#","-@","-#",null,null,null,null},
-                                    {null,null,"-#","-@","-#",null,null,null,null},
-                                    {null,null,null,null,null,null,null,null,null},
-                                    {null,null,null,null,null,null,null,null,null},
-                                    {null,null,null,null,null,null,null,null,null},
-                                    {null,null,null,null,null,null,null,null,null},
-                                };
+    static String[][] goBoard = new String[9][9];
+
+    //Helpful test board 
+    // static String[][] goBoard = {
+    //                                 {null,null,null,null,null,null,null,null,null},
+    //                                 {null,null,null,"-#",null,null,null,null,null},
+    //                                 {null,null,"-#","-@","-#",null,null,null,null},
+    //                                 {null,null,"-#","-@","-#",null,null,null,null},
+    //                                 {null,null,"-#","-@","-#",null,null,null,null},
+    //                                 {null,null,null,null,null,null,null,null,null},
+    //                                 {null,null,null,null,null,null,null,null,null},
+    //                                 {null,null,null,null,null,null,null,null,null},
+    //                                 {null,null,null,null,null,null,null,null,null},
+    //                             };
 
     //Initializes our boolean lives array
     static boolean[][] lives = new boolean[9][9]; //Default: true
@@ -27,6 +29,9 @@ public class Go3 {
     //Initializes black and white scores
     static int blackScore = 0;
     static int whiteScore = 0;
+
+    // Counter to track consecutive passes
+    static int consecutivePasses = 0;
 
     //Checks if a certain piece is out of bounds
     static boolean outOfBounds(int moveY, int moveX, boolean turn){
@@ -102,6 +107,7 @@ public class Go3 {
         }
     }
 
+    //Looks for pieces which are surrounded and begins to check if they are alive
     static void isAlive(){
         System.out.println("Checking if a piece's alive index evaluates to false...");
         for (int i = 0; i < goBoard.length; i++){
@@ -111,17 +117,16 @@ public class Go3 {
                     System.out.println("Piece found at: " + j + ", " + i);
                     //Runs recursive checking on said piece
                     recursiveChecker(i, j);
-
                 }
             }
         }
 
     }
 
+    //Recursively checks connected pieces to see if a piece is connected to a friend which can breathe 
     static void recursiveChecker(int i, int j){
         //Makes checked array true to avoid infinite recursion
         checked[i][j] = true;
-
         //Prints out our checked array every function run for readability
         System.out.println("Checked array:");
         for (int k = 0; k < 9; k++){
@@ -138,8 +143,6 @@ public class Go3 {
             System.out.println();
         }
         System.out.println();
-
-        
         //Determines color of the piece
         boolean black = true;
         if (goBoard[i][j].endsWith("#")){
@@ -163,7 +166,7 @@ public class Go3 {
                 }
             }
             else{
-                //THIS IS WHERE WE NEED TO RECURSE SOMEHOW
+                //Recursive Step
                 System.out.println("North cell contains dead friendly piece, checking neighbors... ");
                 recursiveChecker(i-1, j);
             }
@@ -185,6 +188,7 @@ public class Go3 {
                 }
             }
             else{
+                //Recursive step
                 System.out.println("South cell contains dead friendly piece, checking neighbors... ");
                 recursiveChecker(i+1, j);
             }
@@ -206,6 +210,7 @@ public class Go3 {
                 }
             }
             else{
+                //Recursive step
                 System.out.println("West cell contains dead friendly piece, checking neighbors... ");
                 recursiveChecker(i, j-1);
             }
@@ -227,24 +232,28 @@ public class Go3 {
                 }
             }
             else{
+                //Recursive step
                 System.out.println("East cell contains dead friendly piece, checking neighbors... ");
                 recursiveChecker(i, j+1);
             }
         }
     }
 
-    static void casualtyRemover(){
+    //Removes casualties and adjusts score accordingly
+    static void casualtyRemover(){ 
+        //Looks for casulties on the board
         System.out.println("Removing casulties... ");
         for (int i = 0; i < 9; i++){
             for (int j = 0; j < 9; j++){
                 if (lives[i][j] == true){
+                    //Checks color and adjusts board
                     if (goBoard[i][j].endsWith("@")){                        
                         blackScore = blackScore - 1;
                     }
-
                     if (goBoard[i][j].endsWith("#")){
                         whiteScore = whiteScore - 1;
                     }
+                    //Replaces captured piece with an empty space
                     goBoard[i][j] = null;
 
                 }
@@ -324,13 +333,33 @@ public class Go3 {
             System.out.println("Black score: " + blackScore);
             System.out.println("White score: " + whiteScore);
 
+
+
             //Prompts user to move and asks which coordinate they would like to move to
             System.out.println("\n" + ((turn) ? "Black" : "White") + "'s turn to move!\n\n");
 
             System.out.println("Please enter the x coordinate where you'd like to place a "
-                    + ((turn) ? "Black" : "White") + " piece");
+                    + ((turn) ? "Black" : "White") + " piece or -1 to pass");
 
             moveX = scn.nextInt();
+            
+            //Checks if passing move has occured
+            if (moveX == -1){
+                System.out.println("Passing " + ((turn) ? "Black's" : "White's") + " turn...");
+                consecutivePasses = consecutivePasses + 1;
+                //Ends game loop if both players have passed
+                if (consecutivePasses >= 2){
+                    cont = false;
+                    System.out.println("The game is over!");
+                    //Outputs the final score for each player
+                    System.out.println("Black score: " + blackScore);
+                    System.out.println("White score: " + whiteScore);
+                    break;
+                }
+                //Changes turn
+                turn = !turn;
+                continue;
+            }
 
             System.out.println("Please enter the y coordinate where you'd like to place a "
                     + ((turn) ? "Black" : "White") + " piece");
@@ -357,5 +386,4 @@ public class Go3 {
 
 }
 
-// T put was herekjfadsf
-//FKjldsf
+// T put was here
