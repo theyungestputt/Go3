@@ -5,7 +5,18 @@ import java.util.Scanner;
 public class Go3 {
 
     //Initializes our empty go board
-    static String[][] goBoard = new String[9][9];
+    // static String[][] goBoard = new String[9][9];
+    static String[][] goBoard = {
+                                    {null,null,null,null,null,null,null,null,null},
+                                    {null,null,null,"-#",null,null,null,null,null},
+                                    {null,null,"-#","-@","-#",null,null,null,null},
+                                    {null,null,"-#","-@","-#",null,null,null,null},
+                                    {null,null,"-#","-@","-#",null,null,null,null},
+                                    {null,null,"-#","-@","-#",null,null,null,null},
+                                    {null,null,null,null,null,null,null,null,null},
+                                    {null,null,null,null,null,null,null,null,null},
+                                    {null,null,null,null,null,null,null,null,null},
+                                };
 
     //Initializes our boolean lives array
     static boolean[][] lives = new boolean[9][9]; //Default: true
@@ -43,7 +54,8 @@ public class Go3 {
         }
     }
 
-    // Function to check if a piece is alive
+
+    //Function to check if a piece is surrounded
     static void isSurrounded() {
         System.out.println("Checking if pieces are surrounded...");
         for (int i = 0; i < goBoard.length; i++) {
@@ -86,25 +98,43 @@ public class Go3 {
         }
     }
 
-    static void isAlive(){
-        System.out.println("Checking if a piece's alive index evaluates to false...");
-        for (int i = 0; i < goBoard.length; i++){
-            for (int j = 0; j < goBoard.length; j++){
-                //Checks if alive index is false
-                if (lives[i][j] == true){
-                    System.out.println("Piece found at: " + j + ", " + i);
-                    //Runs recursive checking on said piece
-                    recursiveChecker(i, j);
+    // static void isAlive(){
+    //     System.out.println("Checking if a piece's alive index evaluates to false...");
+    //     for (int i = 0; i < goBoard.length; i++){
+    //         for (int j = 0; j < goBoard.length; j++){
+    //             //Checks if alive index is false
+    //             if (lives[i][j] == true){
+    //                 System.out.println("Piece found at: " + j + ", " + i);
+    //                 //Runs recursive checking on said piece
+    //                 recursiveChecker(i, j);
 
-                }
-            }
-        }
+    //             }
+    //         }
+    //     }
 
-    }
+    // }
 
     static void recursiveChecker(int i, int j){
         //Makes checked array true to avoid infinite recursion
         checked[i][j] = true;
+
+        //Prints out our checked array every function run for readability
+        System.out.println("Checked array:");
+        for (int k = 0; k < 9; k++){
+            for (int l = 0; l < 9; l++){
+                if (checked[k][l] == false){
+                    System.out.print("F ");
+                }
+
+                if (checked[k][l] == true){
+                    System.out.print("T ");
+                }
+                
+            }
+            System.out.println();
+        }
+        System.out.println();
+
         
         //Determines color of the piece
         boolean black = true;
@@ -160,7 +190,6 @@ public class Go3 {
     }
 
 
-
     public static void main(String[] args) {
         //Initliazes our continue, turn and move variables
         Boolean cont = true, turn = true;
@@ -194,6 +223,7 @@ public class Go3 {
             System.out.println("Checked array:");
             for (int i = 0; i < 9; i++){
                 for (int j = 0; j < 9; j++){
+                    checked[i][j] = false;
                     if (checked[i][j] == false){
                         System.out.print("F ");
                     }
@@ -245,8 +275,20 @@ public class Go3 {
             turn = outOfBounds(moveY, moveX, turn);
 
             isSurrounded();
+            
+            System.out.println("Checking if a piece's alive index evaluates to false...");
+            for (int i = 0; i < goBoard.length; i++){
+                for (int j = 0; j < goBoard.length; j++){
+                    //Checks if alive index is false
+                    if (lives[i][j] == true){
+                        System.out.println("Piece found at: " + j + ", " + i);
+                        //Runs recursive checking on said piece
+                        recursiveChecker(i, j);
 
-            isAlive();
+                    }
+                }
+            }
+
 
         }
 
